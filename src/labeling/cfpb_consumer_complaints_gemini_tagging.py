@@ -1,5 +1,5 @@
-# Install necessary libraries
 
+# Install necessary libraries
 import os
 import re
 import pandas as pd
@@ -10,12 +10,16 @@ import google.generativeai as genai
 # Configuration
 # ------------------------
 
-API_KEY = "AIzaSyA4VL5DvoaWknOIABRYUm9KGFa_Qinc210"  # 🔁 Replace with your actual Gemini API key
-INPUT_CSV = "/content/drive/MyDrive/data/data/rv_approach2_Gemini_Labels_theme.csv"
-CHECKPOINT_CSV = "/content/drive/MyDrive/data/data/partial_tags_checkpoint_gemini.csv"
-FINAL_OUTPUT_CSV = "/content/drive/MyDrive/data/data/rv_approach2_Gemini_Labels_theme-tags-5000.csv"
+API_KEY = "YOUR KEY"  # 🔁 Replace with your actual Gemini API key
+INPUT_CSV = "/content/drive/MyDrive/consumercomplaints/raw/deduplicated_complaints_cleaned.csv"
+CHECKPOINT_CSV = "/content/drive/MyDrive/consumercomplaints/partial_tags_checkpoint_gemini.csv"
+FINAL_OUTPUT_CSV = "/content/drive/MyDrive/consumercomplaints/Gemini_Labels_theme_tags.csv"
 MAX_RETRIES = 3
 SAVE_EVERY = 10
+
+# Read the top 10 rows from the CSV
+df = pd.read_csv(INPUT_CSV, nrows=10)
+df
 
 # ------------------------
 # Setup Gemini API
@@ -31,23 +35,22 @@ model = genai.GenerativeModel("gemini-pro")
 import google.generativeai as genai
 
 # STEP 1: Configure with API Key
-genai.configure(api_key="AIzaSyA4VL5DvoaWknOIABRYUm9KGFa_Qinc210")  # Replace with your real key
+genai.configure(api_key=API_KEY)  # Replace with your real key
 
 # STEP 2: List all available models & what they support
 for model in genai.list_models():
     print(f"{model.name} | supports generateContent: {'generateContent' in model.supported_generation_methods}")
 
+# Testing connection
 import google.generativeai as genai
 
 # Replace with your actual API key
-genai.configure(api_key="AIzaSyA4VL5DvoaWknOIABRYUm9KGFa_Qinc210")
+genai.configure(api_key=API_KEY)
 
 # Basic test
 model = genai.GenerativeModel("models/gemini-1.5-pro")
 
-response = model.generate_content("List 3 types of consumer financial complaints.")
-print(response.text)
-
+### Mount Drive and Load Data
 from google.colab import drive
 drive.mount('/content/drive')
 
@@ -158,48 +161,30 @@ def generate_tags_batched_gemini(texts, batch_size=4, save_every=10, save_path=N
 
     return all_tags
 
-# Sample test complaints
-test_complaints = [
-    """As per the guidance from the Consumer Financial Protection Bureau ( CFPB ) the documents needed are a picture ID, a bill, and a letter from an advocacy group helping me due to debt bondage, which falls under trafficking according to Trafficking-Debt Final Rule 1002.142 ( b ) ( 4 ) -5 -- 1002.142 ( b ) ( 7 ). I kindly request that you block this information from my credit report within four business days, pursuant to section 605C of the Fair Credit Reporting Act. I have given you my identification as well as the information requested from the list of acceptable items which only 2 are required per the Law. I have provided all needed documentation as well as a victim determination letter according to 1022.142 ( b ) ( 6 ).""",
-
-    """TRANSUNION # : of TRANSUNION, I hereby formally notify you of a dispute regarding the ( account, which has been reported in my credit file under the entity This account must be immediately removed from the credit report under applicable federal and state law...""",
-
-    """I am formally disputing any unsubstantiated or inaccurately documented information contained within my credit report, as stipulated by the FCRA and Metro 2 data field reporting standards...""",
-
-    """I received an email about my credit from Chase today //24. Apparently it was pulled from . STOP ACCESSING MY CREDIT REPORT! THE INFORMATION IS FRADULENT!...""",
-
-    """In accordance with the Fair Credit Reporting act. The List of accounts below has violated my federally protected consumer rights to privacy and confidentiality under 15 USC 1681...""",
-
-    """I hope you're doing well. I've run into a bit of a problem. While going through my credit report, I noticed some things that don't seem quite right, and it appears my identity have been stolen online..."""
-]
-
-# Gemini-compatible tag generation call
-tag_results = generate_tags_batched_gemini(
-    texts=test_complaints,
-    batch_size=2  # Small-scale test
-)
-
-# Display results
-for i, tags in enumerate(tag_results):
-    print(f"\nComplaint {i+1} Tags: {tags}")
-
 TEXT_COLUMN = "Consumer complaint narrative"
 OUTPUT_COLUMN = "Gemini_Tags"
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 SAVE_EVERY = 50  # ← save every 50
 
 # ------------------------
-# Load Data (limit to top 1,000 rows)
+# Load Data (limit to top 100 rows)
 # ------------------------
 
-df = pd.read_csv(INPUT_CSV).head(5000)  # ← only pick top 1000 rows
+# #df = pd.read_csv(INPUT_CSV)
+df = pd.read_csv(INPUT_CSV).head(50)  # ← only pick top 100 rows
 
 if os.path.exists(CHECKPOINT_CSV):
     checkpoint_df = pd.read_csv(CHECKPOINT_CSV, index_col=0)
-    # Align any existing checkpoint to the current 1,000-row subset
     checkpoint_df = checkpoint_df.reindex(df.index)
+
+    # Ensure column exists and has correct dtype
+    if OUTPUT_COLUMN not in checkpoint_df.columns:
+        checkpoint_df[OUTPUT_COLUMN] = pd.Series(dtype="string")
+    else:
+        checkpoint_df[OUTPUT_COLUMN] = checkpoint_df[OUTPUT_COLUMN].astype("string")
+
     processed_count = checkpoint_df[OUTPUT_COLUMN].notna().sum()
-    print(f"✅ Resuming from checkpoint: {processed_count}/{len(df)} rows already processed for current 1,000-row subset.")
+    print(f"✅ Resuming from checkpoint: {processed_count}/{len(df)} rows already processed for current 100-row subset.")
 else:
     checkpoint_df = pd.DataFrame(index=df.index, columns=[OUTPUT_COLUMN])
 
@@ -241,7 +226,6 @@ for idx in tqdm(df.index, desc="Buffering rows for Gemini"):
             checkpoint_df.to_csv(CHECKPOINT_CSV)
             print(f"💾 Checkpoint saved after {completed} new rows")
 
-# Handle leftovers
 if buffer:
     try:
         tag_batch = generate_tags_batched_gemini(buffer, batch_size=len(buffer))
