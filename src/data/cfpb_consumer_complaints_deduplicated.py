@@ -2,30 +2,32 @@ import pandas as pd
 import os
 
 # --- Configuration ---
-input_file = r'/content/drive/MyDrive/consumercomplaints/raw/complaints.csv'  # replace with your file path
+input_file = r'/content/drive/MyDrive/consumercomplaints/raw/complaints.csv'
 output_file = r'/content/drive/MyDrive/consumercomplaints/raw/deduplicated_output.csv'
-chunk_size = 50_000  # adjust based on your memory limits
-dedup_column = 'Consumer complaint narrative'  # replace with the column you want to deduplicate on
+chunk_size = 100_000
+dedup_column = 'Consumer complaint narrative'
 
-# --- Process ---
-seen = set()
+# --- Processing ---
 first_chunk = True
+seen = set()
 
-# Delete output file if it already exists
+# Remove output file if it already exists
 if os.path.exists(output_file):
     os.remove(output_file)
 
 for chunk in pd.read_csv(input_file, chunksize=chunk_size, low_memory=False):
-    # Only keep rows where the column value has not been seen before
-    mask = ~chunk[dedup_column].isin(seen)
-    deduped_chunk = chunk[mask]
-    
-    # Update seen values
-    seen.update(deduped_chunk[dedup_column].tolist())
+    # 🔹 Drop rows with NaN in deduplication column
+    chunk = chunk.dropna(subset=[dedup_column])
 
-    if not deduped_chunk.empty:
-        # Write immediately in small batches
-        deduped_chunk.to_csv(output_file, index=False, mode='a', header=first_chunk)
+    # 🔹 Drop duplicate narratives already seen
+    chunk = chunk[~chunk[dedup_column].isin(seen)]
+
+    # 🔹 Update seen values (only the new unique ones)
+    seen.update(chunk[dedup_column])
+
+    # 🔹 Write to file
+    if not chunk.empty:
+        chunk.to_csv(output_file, index=False, mode='a', header=first_chunk)
         first_chunk = False
 
-print(f"\n✅ Deduplication complete! Output saved as: {output_file}")
+print(f"\n✅ Done! Deduplicated output saved to: {output_file}")
