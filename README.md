@@ -74,99 +74,26 @@ Why it matters: Complaint volume and heterogeneity overwhelm manual triage. Tran
 ---
 
 ## Repository Structure
-```
-.
-├── notebooks/                        # EDA and Colab entry points
-├── src/
-│   ├── data/                         # loaders, cleaning, splits
-│   ├── features/                     # embeddings, vector utils
-│   ├── clustering/                   # HDBSCAN/KMeans helpers
-│   ├── labeling/                     # per-complaint Theme/Tag generation
-│   ├── modeling/                     # baselines, prompting, evaluation
-│   ├── explain/                      # SHAP/LIME support
-│   └── viz/                          # plots and dashboards
-├── configs/                          # YAML/JSON configs
-├── reports/                          # figures, tables, logs, data_profile.md
-├── models/                           # saved artifacts (gitignored if large)
-├── data/                             # raw/processed (gitignored)
-├── requirements.txt
-└── README.md
-```
-
+TBD
 ---
 
 ## Quickstart
+TBD
 
 ### 1) Environment
-```bash
-# Python 3.10+ recommended
-python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
-pip install -U pip
-pip install -r requirements.txt
-```
+TBD
 
 ### 2) Secrets & Config
-Store keys in `.env` or export:
-```
-OPENAI_API_KEY=...
-GOOGLE_API_KEY=...         # Gemini
-COHERE_API_KEY=...         # optional
-```
+TBD
 
 ### 3) Minimal Workflows
-
 **A) Embeddings → (optional) Clustering for EDA**
-```bash
-python -m src.data.make_splits   --input data/raw/complaints.csv   --output data/processed/ --test_size 0.2
-
-python -m src.features.build_embeddings   --input data/processed/train.csv   --model sbert   --out data/features/train_embeddings.npy
-
-python -m src.clustering.run   --embeddings data/features/train_embeddings.npy   --algo hdbscan   --out reports/clusters.json
-```
 
 **B) Per‑complaint Theme/Tag generation (primary)**
-```bash
-python -m src.labeling.generate   --provider gemini   --input data/processed/all.csv   --out reports/gemini_themes.csv   --max_retries 3 --save_every 10
-
-python -m src.labeling.generate   --provider llama   --input data/processed/all.csv   --out reports/llama_tags.csv   --max_retries 3 --save_every 10
-```
 
 **C) Evaluation (if ground truth available)**
-```bash
-python -m src.modeling.evaluate   --pred reports/gemini_themes.csv   --gold data/processed/test.csv   --average macro
-```
-
-> We log run timestamps, model/provider versions, seeds, and rate‑limit events for traceability.
-
----
 
 ## Notebooks / Colab Entry Points
-> Each notebook contains constants like `MAX_RETRIES=3` and `SAVE_EVERY=10` and saves partial results in batches.
-
-- **UNCC: Trafficking analysis (all trafficking info)**  
-  Colab: <https://colab.research.google.com/drive/1GJl8oJMkjKOeazBoSr-oMYaqe9s_JyM8>  
-  Example path: `INPUT_CSV = "/content/drive/MyDrive/data/data/rv_approach2_CC_trafficking.csv"`
-
-- **Gemini — Tag Generation**  
-  Colab: <https://colab.research.google.com/drive/1LsO43J4Y11eMDICzAd9kN4PZvznQvP1n>
-
-- **Gemini — Theme Generation**  
-  Colab: <https://colab.research.google.com/drive/13iW51qChTxl-GvVpd8QMppucV8ay1DY0>  
-  Example path: `FINAL_OUTPUT_CSV = "/content/drive/MyDrive/data/data/rv_approach2_Gemini_Labels_theme.csv"`
-
-- **LLaMA — Tag Generation (POC)**  
-  Colab: <https://colab.research.google.com/drive/1Sw8eNRly8HyYKf9QGEYik30_-ywEnEQN>
-
-- **LLaMA — Theme Generation (Phase 1)**  
-  `RV-Approach-2_Consumer_Complaints-Theme.ipynb`  
-  Colab: <https://colab.research.google.com/drive/106vOI03t0gPdZvYD2L6ekjxyhmLbMkre>  
-  Example path: `final_df = pd.read_csv('/content/drive/MyDrive/data/data/rv_approach2_LLaMA_Labels.csv')`
-
-- **Approach 2 — Clustered Complaints (EDA)**  
-  Colab: <https://colab.research.google.com/drive/1o6EcvVZCNpYpyg7nksSpyRmZaDCPS-UO>  
-  Example path: `final_df = pd.read_csv('/content/drive/MyDrive/data/data/approach2-clustered_complaints.csv')`
-
----
 
 ## Reproducibility & Logging
 - **Compute:** Colab Pro for intensive runs; local free resources were insufficient.
@@ -220,3 +147,7 @@ Choose a license before sharing (e.g., MIT, Apache‑2.0). Until then, **All Rig
 
 ## Contact
 Questions or collaboration: **Sonal Verma** — open an issue or reach out via email/LinkedIn.
+www.linkedin.com/in/sonalverma
+
+
+
