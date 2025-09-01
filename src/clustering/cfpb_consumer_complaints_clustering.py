@@ -267,7 +267,7 @@ input_df['cluster']
 from huggingface_hub import login
 
 # Paste your Hugging Face API token here
-HUGGINGFACE_TOKEN = "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"
+HUGGINGFACE_TOKEN = "API token"
 
 # Authenticate
 login(token=HUGGINGFACE_TOKEN)
