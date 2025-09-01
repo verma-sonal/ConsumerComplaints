@@ -6,7 +6,7 @@ input_path = r'/content/drive/MyDrive/consumercomplaints/raw/deduplicated_output
 output_path = r'/content/drive/MyDrive/consumercomplaints/raw/deduplicated_complaints_cleaned.csv'
 
 # Load CSV
-print("📄 Loading data...")
+print("Loading data...")
 df = pd.read_csv(input_path)
 
 # Function to clean redacted text (e.g., XXXX, XX/XX/XXXX)
@@ -19,7 +19,7 @@ def clean_redacted(text):
     return text
 
 # Apply cleaning
-print("🧼 Cleaning redacted text...")
+print("Cleaning redacted text...")
 df['Cleaned_Complaint'] = df['Consumer complaint narrative'].astype(str).apply(clean_redacted)
 
 # Overwrite the narrative with the cleaned version where available
@@ -32,4 +32,4 @@ df.drop(columns=['Cleaned_Complaint'], inplace=True)
 
 # Save to new file
 df.to_csv(output_path, index=False)
-print(f"✅ Cleaned file saved to: {output_path}")
+print(f"Cleaned file saved to: {output_path}")
