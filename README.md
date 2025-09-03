@@ -135,7 +135,6 @@ TBD
 
 ## Acknowledgments
 Advisor: **Dr. Wlodek Zadrozny**.  
-Additional thanks: **Rick Hudson**, **Bill Cronin**, peers and faculty for feedback.
 
 ## License
 Choose a license before sharing (e.g., MIT, Apache‑2.0). Until then, **All Rights Reserved**.
