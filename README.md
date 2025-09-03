@@ -54,9 +54,8 @@ Why it matters: Complaint volume and heterogeneity overwhelm manual triage. Tran
 - **Source:** CFPB Consumer Complaint Database (2011–present).
 - **Common fields:** `Consumer complaint narrative`, `Product/Sub-product`, `Issue/Sub-issue`, `Company`, `Date received`, `Company response`, `Consumer disputed`.
 - **Prep pipeline:**
-  - Text cleaning (lowercasing, punctuation normalization, basic PII scrubbing).
+  - Text cleaning (like basic PII scrubbing).
   - Deduping exact/near-duplicates; track counts in data profile.
-  - Train/test split where supervised comparisons are run.
   - Always record the **dataset snapshot date** per run (source drift).
 
 > Use the CFPB data under its terms. Do **not** commit raw data or PII to the repo.
@@ -65,12 +64,8 @@ Why it matters: Complaint volume and heterogeneity overwhelm manual triage. Tran
 
 ## Methods (at a glance)
 - **Embeddings:** sentence‑transformers (SBERT) and provider embeddings.
-- **Clustering/Topics:** HDBSCAN, KMeans, BERTopic (exploration), LLM cluster naming (Phase 1).
+- **Clustering/Topics:** HDBSCAN,BERTopic (exploration), LLM cluster naming (Phase 1).
 - **Per‑complaint generation:** prompt libraries for **Gemini**/**LLaMA** with JSON‑like outputs.
-- **Classification baselines:** GPT‑4, Gemini, LLaMA family, DeepSeek (where applicable).
-- **Evaluation:** Accuracy, Precision, Recall, F1 (micro/macro), error slices by Theme and Tag.
-- **Explainability:** SHAP/LIME for classical models; prompt rationales for LLMs.
-
 ---
 
 ## Repository Structure
